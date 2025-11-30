@@ -39,6 +39,20 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor libraries
+          react: ["react", "react-dom"],
+          radix: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-navigation-menu"],
+          // Split large dependencies
+          hook: ["@hookform/resolvers", "react-hook-form"],
+          query: ["@tanstack/react-query"],
+          other: ["sonner", "date-fns", "zod"],
+        },
+      },
+    },
   },
   server: {
     host: "0.0.0.0",
