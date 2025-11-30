@@ -35,12 +35,32 @@ export function serveStatic(app: Express) {
     }
   }
 
-  app.use(express.static(distPath));
+  // Set proper MIME type for HTML files
+  app.use((req, res, next) => {
+    if (req.path.endsWith(".html")) {
+      res.type("text/html; charset=utf-8");
+    }
+    next();
+  });
+
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      // Ensure HTML files are served as HTML
+      if (filePath.endsWith(".html")) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+      }
+      // Set cache headers for static assets
+      if (filePath.match(/\.(js|css|woff2?|ttf|eot|svg)$/i)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }
+    },
+  }));
 
   // fall through to index.html if the file doesn't exist (SPA routing)
   app.use("*", (_req, res) => {
     const indexPath = path.resolve(distPath, "index.html");
     if (fs.existsSync(indexPath)) {
+      res.type("text/html; charset=utf-8");
       res.sendFile(indexPath);
     } else {
       res.status(404).send("index.html not found");
