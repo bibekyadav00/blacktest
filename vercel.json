@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "outputDirectory": "dist",
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "framework": "express",
+  "nodeVersion": "20.x"
 }
