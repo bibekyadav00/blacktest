@@ -1,35 +1,34 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function serveStatic(app: Express) {
-  // Try multiple possible paths for dist/public
-  let distPath = path.resolve(__dirname, "../public");
+  // In production, __dirname from the bundled cjs should work
+  // In case it doesn't, we have multiple fallbacks
+  let distPath: string;
   
-  // Fallback for Vercel and other serverless environments
+  // Try relative to current working directory first (Vercel default)
+  distPath = path.resolve(process.cwd(), "dist", "public");
+  
   if (!fs.existsSync(distPath)) {
-    distPath = path.resolve(__dirname, "./public");
+    // Fallback: try relative to the script directory
+    distPath = path.resolve(__dirname || process.cwd(), "..", "public");
   }
   
-  // Fallback if running from different directory structure
   if (!fs.existsSync(distPath)) {
-    distPath = path.resolve(process.cwd(), "dist", "public");
+    // Last resort: just use dist/public
+    distPath = "dist/public";
   }
 
   console.log(`[static] Looking for static files at: ${distPath}`);
   console.log(`[static] Directory exists: ${fs.existsSync(distPath)}`);
+  console.log(`[static] CWD: ${process.cwd()}`);
 
   if (!fs.existsSync(distPath)) {
-    console.warn(
-      `Warning: Could not find the build directory: ${distPath}, static files may not be served. Available files:`,
-    );
-    console.warn(`CWD: ${process.cwd()}`);
-    console.warn(`__dirname: ${__dirname}`);
+    console.warn(`Warning: Could not find public directory at ${distPath}`);
     try {
-      console.warn(`dist/ contents:`, fs.readdirSync(path.resolve(process.cwd(), "dist")));
+      const distContents = fs.readdirSync(path.resolve(process.cwd(), "dist"));
+      console.warn(`dist/ contents:`, distContents);
     } catch (e) {
       console.warn("dist/ directory not found");
     }
