@@ -54,6 +54,9 @@ app.use((req, res, next) => {
       }
 
       log(logLine);
+    } else {
+      // Log all non-API requests for debugging
+      log(`${req.method} ${path} ${res.statusCode} in ${duration}ms`);
     }
   });
 
