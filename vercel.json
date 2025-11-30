@@ -1,15 +1,17 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "devCommand": "npm run dev",
-  "routes": [
+  "functions": {
+    "index.cjs": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
     {
-      "src": "^/api/.*",
-      "dest": "/index.cjs"
-    },
-    {
-      "src": "^/(?!api).*$",
-      "dest": "/index.cjs"
+      "source": "/(.*)",
+      "destination": "/index.cjs"
     }
   ]
 }
